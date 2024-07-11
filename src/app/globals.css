@@ -71,3 +71,8 @@
 .section-container {
   @apply mx-auto max-w-5xl px-8 py-16 md:px-6;
 }
+
+.cl-internal-b3fm6y,
+.cl-userButtonPopoverFooter.cl-internal-uyu30o {
+  display: none;
+}
