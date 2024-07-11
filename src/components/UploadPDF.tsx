@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Upload, UploadCloud, X } from "lucide-react"
 import { useDropzone } from "react-dropzone"
+import { generatePreSignedURL } from "@/actions/s3";
 
 export default function UploadPDF() {
   const [file, setFile] = useState<File | null>(null)
@@ -57,12 +58,20 @@ export default function UploadPDF() {
     resetForm()
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if(file) {
-      console.log("File uploaded successfully: ", file)
-    } else if(url) {
-      console.log("URL provided: ", url)
+    try {
+      if (file) {
+        console.log("File uploaded successfully: ", file)
+        const { putUrl, fileKey } = await generatePreSignedURL(file.name, file.type)
+        console.log({ putUrl, fileKey })
+      } else if (url) {
+        console.log("URL provided: ", url)
+      }
+    } catch(error) {
+      console.error(error)
+    } finally {
+      resetForm()
     }
   }
 
