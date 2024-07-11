@@ -76,3 +76,7 @@
 .cl-userButtonPopoverFooter.cl-internal-uyu30o {
   display: none;
 }
+
+.rpv-core__textbox {
+  height: 15% !important;
+}
