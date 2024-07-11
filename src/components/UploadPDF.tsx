@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Upload, UploadCloud, X } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 import { generatePreSignedURL } from "@/actions/s3";
+import { getPdfNameFromUrl } from "@/lib/utils";
 
 export default function UploadPDF() {
   const [file, setFile] = useState<File | null>(null)
@@ -58,15 +59,34 @@ export default function UploadPDF() {
     resetForm()
   }
 
+  const uploadPdfToS3 = async (file: File | Blob, putUrl: string) => {
+    const response = await fetch(putUrl, {
+      body: file,
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/pdf"
+      }
+    })
+    
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       if (file) {
-        console.log("File uploaded successfully: ", file)
         const { putUrl, fileKey } = await generatePreSignedURL(file.name, file.type)
-        console.log({ putUrl, fileKey })
+        await uploadPdfToS3(file, putUrl)
       } else if (url) {
-        console.log("URL provided: ", url)
+        const response = await fetch(url)
+        const fileName = getPdfNameFromUrl(url)
+        const fileSize = Number(response.headers.get("Content-Length"))
+        const fileType = response.headers.get("Content-Type")
+        if (!fileName || fileType !== "application/pdf" ) {
+          throw new Error("Incorrect file format")
+        }
+        const { putUrl, fileKey } = await generatePreSignedURL(fileName, fileType)
+        const blob = await response.blob()
+        await uploadPdfToS3(blob, putUrl)
       }
     } catch(error) {
       console.error(error)
