@@ -60,14 +60,13 @@ export default function UploadPDF() {
   }
 
   const uploadPdfToS3 = async (file: File | Blob, putUrl: string) => {
-    const response = await fetch(putUrl, {
+    await fetch(putUrl, {
       body: file,
       method: "PUT",
       headers: {
         "Content-Type": "application/pdf"
       }
-    })
-    
+    }) 
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -77,7 +76,8 @@ export default function UploadPDF() {
         const { putUrl, fileKey } = await generatePreSignedURL(file.name, file.type)
         await uploadPdfToS3(file, putUrl)
       } else if (url) {
-        const response = await fetch(url)
+        const proxyUrl = `https://corsproxy.io/?${url}`
+        const response = await fetch(proxyUrl)
         const fileName = getPdfNameFromUrl(url)
         const fileSize = Number(response.headers.get("Content-Length"))
         const fileType = response.headers.get("Content-Type")
