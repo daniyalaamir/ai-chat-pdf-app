@@ -10,6 +10,7 @@ import { useDropzone } from "react-dropzone"
 import { generatePreSignedURL } from "@/actions/s3";
 import { getPdfNameFromUrl, showToast } from "@/lib/utils";
 import { toast } from "react-toastify";
+import { embedPdfToPinecone } from "@/actions/pinecone";
 
 export default function UploadPDF() {
   const [file, setFile] = useState<File | null>(null)
@@ -78,6 +79,7 @@ export default function UploadPDF() {
       if (file) {
         const { putUrl, fileKey } = await generatePreSignedURL(file.name, file.type)
         await uploadPdfToS3(file, putUrl)
+        const docs = await embedPdfToPinecone(fileKey)
       } else if (url) {
         const proxyUrl = `https://corsproxy.io/?${url}`
         const response = await fetch(proxyUrl)
@@ -90,6 +92,7 @@ export default function UploadPDF() {
         const { putUrl, fileKey } = await generatePreSignedURL(fileName, fileType)
         const blob = await response.blob()
         await uploadPdfToS3(blob, putUrl)
+        const docs = await embedPdfToPinecone(fileKey)
       }
     } catch(error: any) {
       showToast(error.message)
