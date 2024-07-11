@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
 import './globals.css'
 
 const poppins = Poppins({
@@ -24,7 +26,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={poppins.className}>
-          {children}
+          <div className="bg-[#faf9f6]">
+            {children}
+          </div>
+          <ToastContainer />
         </body>
       </html>
     </ClerkProvider>

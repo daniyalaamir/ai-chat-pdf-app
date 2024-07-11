@@ -5,25 +5,27 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Upload, UploadCloud, X } from "lucide-react"
+import { Loader2, Upload, UploadCloud, X } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 import { generatePreSignedURL } from "@/actions/s3";
-import { getPdfNameFromUrl } from "@/lib/utils";
+import { getPdfNameFromUrl, showToast } from "@/lib/utils";
+import { toast } from "react-toastify";
 
 export default function UploadPDF() {
   const [file, setFile] = useState<File | null>(null)
   const [url, setUrl] = useState<string>("")
   const [isButtonEnabled, setIsButtonEnabled] = useState(false)
   const [open, setOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const onDrop = useCallback((acceptedfiles: File[]) => {
     const pdfFile = acceptedfiles[0]
     if(!pdfFile) {
-      alert("Please upload only PDF file.")
+      showToast("Please upload only PDF file.")
       return
     }
     if(pdfFile.size > 10 * 1024 * 1024) {
-      alert("Max file size 10Mb")
+      showToast("Max file size 10Mb")
       return
     }
     setFile(pdfFile)
@@ -72,6 +74,7 @@ export default function UploadPDF() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
+      setIsLoading(true)
       if (file) {
         const { putUrl, fileKey } = await generatePreSignedURL(file.name, file.type)
         await uploadPdfToS3(file, putUrl)
@@ -88,9 +91,10 @@ export default function UploadPDF() {
         const blob = await response.blob()
         await uploadPdfToS3(blob, putUrl)
       }
-    } catch(error) {
-      console.error(error)
+    } catch(error: any) {
+      showToast(error.message)
     } finally {
+      setIsLoading(false)
       resetForm()
     }
   }
@@ -150,9 +154,13 @@ export default function UploadPDF() {
             <Button 
               type="submit" 
               variant="orange" 
-              disabled={!isButtonEnabled}
+              disabled={!isButtonEnabled || isLoading}
             >
-              Upload
+              {isLoading ? (
+                <Loader2 className="h-5 w-5 text-white/80 animate-spin" style={{ strokeWidth: "3" }} />
+              ) : (
+                `Upload`
+              )}
             </Button>
             <DialogTrigger asChild>
               <Button variant="light">Cancel</Button>

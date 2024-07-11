@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx"
+import { toast } from "react-toastify"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -18,4 +19,8 @@ export function getPdfNameFromUrl(url: string) {
   }
 
   return null
+}
+
+export function showToast(message: string) {
+  toast(message, { position: "top-right", className: 'foo-bar' })
 }
