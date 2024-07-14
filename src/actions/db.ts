@@ -64,3 +64,20 @@ export const updateDocument = async (documentId: string, formData: FormData) => 
 
   revalidatePath("/documents")
 }
+
+export const deleteDocument = async (documentId: string) => {
+  const user = await currentUser()
+
+  if (!user || !user.id || !user.firstName) {
+    throw new Error("Unauthorized")
+  }
+
+  await prismadb.document.delete({
+    where: {
+      id: documentId,
+      userId: user.id
+    }
+  })
+
+  revalidatePath("/documents")
+}

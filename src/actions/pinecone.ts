@@ -51,3 +51,28 @@ export const embedPdfToPinecone = async (fileKey: string) => {
     namespace: fileKey
   })
 }
+
+export const deletePineconeNamespace = async (fileKey: string) => {
+  const { userId } = auth()
+
+  if (!userId) {
+    throw new Error("Unauthorized")
+  }
+
+  if (!fileKey) {
+    throw new Error("There was a problem with the namespace")
+  }
+
+  const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! })
+  const index = pinecone.Index(process.env.PINECONE_INDEX!)
+  
+  const vectorStore = await PineconeStore.fromExistingIndex(
+    new OpenAIEmbeddings(),
+    {
+      pineconeIndex: index,
+      namespace: fileKey
+    }
+  )
+
+  await vectorStore.delete({ deleteAll: true })
+}

@@ -1,11 +1,12 @@
 import UploadPDF from "@/components/UploadPDF";
-import { File, Pencil, Trash2, Upload } from "lucide-react";
+import { File } from "lucide-react";
 import Link from "next/link";
 import prismadb from "@/lib/prisma";
 import { auth } from "@clerk/nextjs";
 import { formatDistanceToNow } from "date-fns"
 import { formatBytes } from "@/lib/utils";
 import UpdatePDF from './../../../components/UpdatePDF';
+import DeletePDF from "@/components/DeletePDF";
 
 const Documents = async () => {
   const { userId } = auth()
@@ -42,7 +43,7 @@ const Documents = async () => {
                     <UpdatePDF document={document} />
                   </td>
                   <td className="p-4 text-right w-4">
-                    <Trash2 className="w-4 h-4 cursor-pointer" style={{ strokeWidth: "3" }} />
+                    <DeletePDF document={document} />
                   </td>
                 </tr>
               ))}
