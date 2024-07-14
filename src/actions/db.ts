@@ -37,6 +37,11 @@ export const getDocument = async (documentId: string) => {
     where: {
       id: documentId,
       userId: user.id
+    },
+    include: {
+      messages: {
+        orderBy: { createdAt: "asc" }
+      }
     }
   })
 
