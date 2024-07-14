@@ -1,11 +1,11 @@
 "use client";
 
 import { BookOpenCheck } from "lucide-react"
-import { useAuth, UserButton } from "@clerk/nextjs"
+import { UserButton } from "@clerk/nextjs"
+import Link from "next/link";
+import { Button } from "./ui/button";
 
 export default function DashboardBar() {
-  const { isSignedIn } = useAuth()
-
   return (
     <div>
       <header className="static left-0 top-0 z-50 bg-[#f8f5ee] w-full backdrop-blur border-slate-500/10">
@@ -15,7 +15,12 @@ export default function DashboardBar() {
               <BookOpenCheck className="text-black w-7 h-7 mr-3" />
               <span className="text-lg font-medium text-black">PDF.wisdom</span>
             </div>
-            <UserButton afterSignOutUrl="/" />
+            <div className="flex">
+              <Link href="/documents">
+                <Button variant="link">Documents</Button>
+              </Link>
+              <UserButton afterSignOutUrl="/" />
+            </div>
           </div>
         </div>
       </header>

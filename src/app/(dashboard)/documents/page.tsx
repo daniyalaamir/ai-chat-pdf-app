@@ -5,6 +5,7 @@ import prismadb from "@/lib/prisma";
 import { auth } from "@clerk/nextjs";
 import { formatDistanceToNow } from "date-fns"
 import { formatBytes } from "@/lib/utils";
+import UpdatePDF from './../../../components/UpdatePDF';
 
 const Documents = async () => {
   const { userId } = auth()
@@ -38,7 +39,7 @@ const Documents = async () => {
                   <td className="p-4 text-right text-sm text-gray-500 whitespace-nowrap w-20">{formatBytes(document.fileSize)}</td>
                   <td className="p-4 text-right text-sm text-gray-500 whitespace-nowrap w-20">{formatDistanceToNow(document.createdAt, { addSuffix: true })}</td>
                   <td className="p-4 text-right w-4">
-                    <Pencil className="w-4 h-4 cursor-pointer" style={{ strokeWidth: "3" }} />
+                    <UpdatePDF document={document} />
                   </td>
                   <td className="p-4 text-right w-4">
                     <Trash2 className="w-4 h-4 cursor-pointer" style={{ strokeWidth: "3" }} />

@@ -42,3 +42,25 @@ export const getDocument = async (documentId: string) => {
 
   return { document }
 }
+
+export const updateDocument = async (documentId: string, formData: FormData) => {
+  const user = await currentUser()
+
+  if (!user || !user.id || !user.firstName) {
+    throw new Error("Unauthorized")
+  }
+
+  const fileName = formData.get("documentName") as string
+
+  await prismadb.document.update({
+    where: {
+      id: documentId,
+      userId: user.id
+    },
+    data: {
+      fileName
+    }
+  })
+
+  revalidatePath("/documents")
+}
