@@ -1,9 +1,8 @@
-"use client";
-
 import { BookOpenCheck } from "lucide-react"
 import { UserButton } from "@clerk/nextjs"
 import Link from "next/link";
 import { Button } from "./ui/button";
+import PricingModal from "./PricingModal";
 
 export default function DashboardBar() {
   return (
@@ -16,6 +15,7 @@ export default function DashboardBar() {
               <span className="text-lg font-medium text-black">PDF.wisdom</span>
             </div>
             <div className="flex">
+              <PricingModal />
               <Link href="/documents">
                 <Button variant="link">Documents</Button>
               </Link>

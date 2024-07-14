@@ -32,6 +32,7 @@
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
     "react-toastify": "^10.0.5",
+    "stripe": "^13.9.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
     "typewriter-effect": "^2.21.0"
