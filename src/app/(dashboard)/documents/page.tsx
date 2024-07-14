@@ -31,7 +31,7 @@ const Documents = async () => {
                 <tr key={index} className={index === documents.length - 1 ? "" : "border-b border-gray-200"}>
                   <td className="p-4 text-left flex items-center">
                     <File className="w-4 h-4 mr-2" style={{ strokeWidth: "3" }} />
-                    <Link href="#">
+                    <Link href={`/documents/${document.id}`}>
                       <span className="text-ellipsis overflow-hidden whitespace-normal max-w-[300px] text-sm font-medium">{document.fileName}</span>
                     </Link>
                   </td>

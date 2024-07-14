@@ -5,7 +5,7 @@ import { defaultLayoutPlugin, ToolbarProps, ToolbarSlot } from '@react-pdf-viewe
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
-export default function PDFViewer() {
+export default function PDFViewer({ url }: { url: string }) {
   const renderToolbar = (Toolbar: (props: ToolbarProps) => React.ReactElement) => (
     <Toolbar>
       {(slots: ToolbarSlot) => {
@@ -77,7 +77,7 @@ export default function PDFViewer() {
   return (
     <div className="w-1/2 h-screen">
       <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-        <Viewer plugins={[defaultLayoutPluginInstance]} fileUrl="https://daamir-aipdf.s3.us-east-2.amazonaws.com/users/user_2j6VxRldg0Qv60ZMUxl1ohFfsJd/1720717814825-Drylab_News.pdf%7D" />
+        <Viewer plugins={[defaultLayoutPluginInstance]} fileUrl={url} />
       </Worker>
     </div>
   )
