@@ -1,14 +1,21 @@
-import { Button } from "@/components/ui/button";
 import UploadPDF from "@/components/UploadPDF";
 import { File, Pencil, Trash2, Upload } from "lucide-react";
 import Link from "next/link";
+import prismadb from "@/lib/prisma";
+import { auth } from "@clerk/nextjs";
+import { formatDistanceToNow } from "date-fns"
+import { formatBytes } from "@/lib/utils";
 
-export default function Documents() {
-  const documents = [
-    { fileName: "User_Manual.pdf", fileSize: "1 MB", createdAt: "yesterday" },
-    { fileName: "Learn_Python.pdf", fileSize: "7 MB", createdAt: "3 days ago" },
-    { fileName: "Google_Financial_Report.pdf", fileSize: "25 MB", createdAt: "4 weeks ago" }
-  ]
+const Documents = async () => {
+  const { userId } = auth()
+  const documents = await prismadb.document.findMany({
+    where: {
+      userId: userId as string,
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  })
 
   return (
     <section className="bg-[#faf9f6] min-h-screen">
@@ -28,8 +35,8 @@ export default function Documents() {
                       <span className="text-ellipsis overflow-hidden whitespace-normal max-w-[300px] text-sm font-medium">{document.fileName}</span>
                     </Link>
                   </td>
-                  <td className="p-4 text-right text-sm text-gray-500 whitespace-nowrap w-20">{document.fileSize}</td>
-                  <td className="p-4 text-right text-sm text-gray-500 whitespace-nowrap w-20">{document.createdAt}</td>
+                  <td className="p-4 text-right text-sm text-gray-500 whitespace-nowrap w-20">{formatBytes(document.fileSize)}</td>
+                  <td className="p-4 text-right text-sm text-gray-500 whitespace-nowrap w-20">{formatDistanceToNow(document.createdAt, { addSuffix: true })}</td>
                   <td className="p-4 text-right w-4">
                     <Pencil className="w-4 h-4 cursor-pointer" style={{ strokeWidth: "3" }} />
                   </td>
@@ -38,6 +45,11 @@ export default function Documents() {
                   </td>
                 </tr>
               ))}
+              {documents.length === 0 && (
+                <tr>
+                  <td className="p-4 italic">None</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -45,3 +57,5 @@ export default function Documents() {
     </section>
   )
 }
+
+export default Documents
