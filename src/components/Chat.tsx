@@ -1,24 +1,36 @@
-import { Bot, Send, User } from "lucide-react";
+"use client";
+
+import { Bot, FileKey, Loader2, Send, User } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { cn } from "@/lib/utils";
+import { cn, scrollToBottom } from "@/lib/utils";
+import { Message, useChat } from 'ai/react'
+import { Document } from "@prisma/client";
+import { useEffect, useRef } from "react";
 
-export default function Chat() {
-  const messages = [
-    { role: "user", content: "Who is Tony?" },
-    { role: "assistant", content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti, aperiam? Ad, inventore voluptatibus ducimus libero sequi dolores nobis dolorum explicabo doloremque distinctio saepe, illo quisquam est delectus aut reiciendis. Quam." },
-    { role: "user", content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti, aperiam? Ad, inventore voluptatibus ducimus libero sequi dolores nobis dolorum explicabo doloremque distinctio saepe, illo quisquam est delectus aut reiciendis. Quam." },
-    { role: "assistant", content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti, aperiam? Ad, inventore voluptatibus ducimus libero sequi dolores nobis dolorum explicabo doloremque distinctio saepe, illo quisquam est delectus aut reiciendis. Quam." },
-    { role: "user", content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti, aperiam? Ad, inventore voluptatibus ducimus libero sequi dolores nobis dolorum explicabo doloremque distinctio saepe, illo quisquam est delectus aut reiciendis. Quam." },
-    { role: "assistant", content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti, aperiam? Ad, inventore voluptatibus ducimus libero sequi dolores nobis dolorum explicabo doloremque distinctio saepe, illo quisquam est delectus aut reiciendis. Quam." }
-  ]
+type ChatProps = {
+  document: Document
+}
+
+export default function Chat({ document }: ChatProps) {
+  const { messages, input, isLoading, handleInputChange, handleSubmit } = useChat({
+    body: {
+      FileKey: document.fileKey
+    }
+  })
+  
+  const messageRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    scrollToBottom(messageRef)
+  }, [messages])
 
   return (
     <div className="w-1/2 h-[calc(100vh-60px)] overflow-scroll bg-white">
       <div className="h-full flex flex-col justify-between">
         <div className="overflow-auto bg-white">
           <div className="flex flex-col">
-            {messages.map((msg, index) => (
+            {messages.map((msg: Message, index) => (
               <div key={index} className={cn("p-6 w-full flex items-start gap-x-8", msg.role === "user" ? "bg-white" : "bg-[#faf9f6]")}>
                 <div className="w-4">
                   {msg.role  === "user" ? (
@@ -33,16 +45,27 @@ export default function Chat() {
               </div>
             ))}
           </div>
+          <div ref={messageRef}></div>
         </div>
         <div className="bg-[#faf9f6]">
-          <form className="m-4 p-2 flex items-center justify-between rounded-md border-[#e5e3da] border bg-white">
+          <form 
+            className="m-4 p-2 flex items-center justify-between rounded-md border-[#e5e3da] border bg-white"
+            onSubmit={handleSubmit}
+          >
             <Input 
               placeholder="Enter your question"
               className="border-none outline-none focus-visible:ring-0 focus-visible:ring-transparent"
+              value={input}
+              onChange={handleInputChange}
+              disabled={isLoading}
             />
-            <Button variant="orange" type="submit">
-              <Send className="w-4 h-4" />
-            </Button>
+            {isLoading ? (
+              <Loader2 className="h-5 w-5 text-[#ff612f]/70 animate-spin" style={{ strokeWidth: "3" }} />
+            ) : (
+              <Button variant="orange" type="submit">
+                <Send className="w-4 h-4" />
+              </Button>
+            )}
           </form>
         </div>
       </div>
