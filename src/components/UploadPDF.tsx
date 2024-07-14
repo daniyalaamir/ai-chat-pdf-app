@@ -9,10 +9,12 @@ import { Loader2, Upload, UploadCloud, X } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 import { generatePreSignedURL } from "@/actions/s3";
 import { getPdfNameFromUrl, showToast } from "@/lib/utils";
-import { toast } from "react-toastify";
 import { embedPdfToPinecone } from "@/actions/pinecone";
+import { createDocument } from "@/actions/db";
+import { useRouter } from "next/navigation";
 
 export default function UploadPDF() {
+  const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [url, setUrl] = useState<string>("")
   const [isButtonEnabled, setIsButtonEnabled] = useState(false)
@@ -72,27 +74,38 @@ export default function UploadPDF() {
     }) 
   }
 
+  const processPdf = async (file: File | Blob, fileName: string, fileSize: number, fileType: string) => {
+    const { putUrl, fileKey } = await generatePreSignedURL(fileName, fileType)
+
+    await uploadPdfToS3(file, putUrl)
+    await embedPdfToPinecone(fileKey)
+
+    const { document } = await createDocument(fileName, fileSize, fileKey)
+
+    if (document) {
+      router.push(`/documents/${document.id}`)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
       setIsLoading(true)
       if (file) {
-        const { putUrl, fileKey } = await generatePreSignedURL(file.name, file.type)
-        await uploadPdfToS3(file, putUrl)
-        await embedPdfToPinecone(fileKey)
+        await processPdf(file, file.name, file.size, file.type)
       } else if (url) {
         const proxyUrl = `https://corsproxy.io/?${url}`
         const response = await fetch(proxyUrl)
         const fileName = getPdfNameFromUrl(url)
         const fileSize = Number(response.headers.get("Content-Length"))
         const fileType = response.headers.get("Content-Type")
+
         if (!fileName || fileType !== "application/pdf" ) {
           throw new Error("Incorrect file format")
         }
-        const { putUrl, fileKey } = await generatePreSignedURL(fileName, fileType)
+        
         const blob = await response.blob()
-        await uploadPdfToS3(blob, putUrl)
-        await embedPdfToPinecone(fileKey)
+        await processPdf(blob, fileName, fileSize, fileType)
       }
     } catch(error: any) {
       showToast(error.message)
