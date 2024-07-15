@@ -3,8 +3,12 @@ import { UserButton } from "@clerk/nextjs"
 import Link from "next/link";
 import { Button } from "./ui/button";
 import PricingModal from "./PricingModal";
+import { isValidSubscription } from "@/lib/subscription";
+import Billing from "./Billing";
 
-export default function DashboardBar() {
+const DashboardBar = async () => {
+  const isSubscribed = await isValidSubscription()
+
   return (
     <div>
       <header className="static left-0 top-0 z-50 bg-[#f8f5ee] w-full backdrop-blur border-slate-500/10">
@@ -15,7 +19,7 @@ export default function DashboardBar() {
               <span className="text-lg font-medium text-black">PDF.wisdom</span>
             </div>
             <div className="flex">
-              <PricingModal />
+              {isSubscribed ? <Billing /> : <PricingModal />}
               <Link href="/documents">
                 <Button variant="link">Documents</Button>
               </Link>
@@ -27,3 +31,5 @@ export default function DashboardBar() {
     </div>
   )
 }
+
+export default DashboardBar
