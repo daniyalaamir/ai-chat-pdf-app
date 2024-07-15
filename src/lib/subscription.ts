@@ -48,3 +48,29 @@ export const generateBillingLink = async () => {
     return stripeSession.url
   }
 }
+
+const MAX_FREE_DOCS = 1
+export const isMaxFreeDocuments = async () => {
+  const { userId } = auth()
+
+  if (!userId) return false
+
+  const documents = await prismadb.document.findMany({
+    where: {
+      userId
+    }
+  })
+
+  if (documents && documents.length >= MAX_FREE_DOCS) return true
+
+  return false
+}
+
+export const needToUpgrade = async () => {
+  const isSubscribed = await isValidSubscription()
+  const reachedFreeQuota = await isMaxFreeDocuments()
+
+  if (!isSubscribed && reachedFreeQuota) return true
+
+  return false
+}
